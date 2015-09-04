@@ -1,0 +1,22 @@
+{
+  "name": "linter-glualint",
+  "main": "./lib/init",
+  "version": "0.0.0",
+  "description": "Lua linter for Garry's mod Lua using glualint.",
+  "repository": "https://github.com/FPtje/linter-glualint",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=0.50.0"
+  },
+  "dependencies": {
+    "atom-linter": "^2.0.0",
+    "xregexp": ">=2.0.0"
+  },
+  "providedServices": {
+    "linter": {
+      "versions": {
+        "1.0.0": "provideLinter"
+      }
+    }
+  }
+}

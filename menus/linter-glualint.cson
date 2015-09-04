@@ -1,0 +1,14 @@
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'linter-glualint'
+      'submenu': [
+        {
+          'label': 'Pretty print'
+          'command': 'linter-glualint:prettyprint'
+        }
+      ]
+    ]
+  }
+]

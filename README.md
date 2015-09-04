@@ -7,6 +7,8 @@ You will need the following:
 * [Atom Linter](https://atom.io/packages/linter).
 * [glualint](https://github.com/FPtje/GLuaFixer)
 
+**Note:** This plugin will NOT work if `glualint` is not installed properly! Please follow the installation guide in its README properly!
+
 ## Installation
 
 * `$ apm install linter` (if you don't have [Atom Linter](https://atom.io/packages/linter) installed).

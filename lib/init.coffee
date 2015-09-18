@@ -27,11 +27,12 @@
   @subscriptions.dispose()
 
 runPrettyPrint = (editor, selection) =>
+    indentation = '--indentation=\'' + editor.getTabText() + '\''
     result = []
     process = new BufferedProcess
         command: @executablePath
         options: {stdio: ['pipe', null, null]}
-        args: ['--pretty-print']
+        args: [indentation, '--pretty-print']
         stderr: (data) ->
           result.push data
         stdout: (data) ->

@@ -84,6 +84,7 @@ infoErrors = (fp, info) ->
 @provideLinter = =>
   helpers = require('atom-linter')
   provider =
+    name: 'gualint'
     grammarScopes: ['source.lua']
     scope: 'file'
     lintOnFly: not @lintOnSave

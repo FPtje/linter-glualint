@@ -40,8 +40,11 @@ runPrettyPrint = (editor, selection) =>
         exit: (code) ->
           info = result.join('')
           return unless info
+
+          checkpoint = editor.createCheckpoint()
           selection.insertText(info, {select: true})
           selection.autoIndentSelectedRows()
+          editor.groupChangesSinceCheckpoint(checkpoint)
 
     process.onWillThrowError ({error,handle}) ->
         atom.notifications.addError "Failed to run #{@executablePath}",

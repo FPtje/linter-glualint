@@ -1,7 +1,7 @@
 {
   "name": "linter-glualint",
   "main": "./lib/init",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Lua linter for Garry's mod Lua using glualint.",
   "repository": "https://github.com/FPtje/linter-glualint",
   "license": "MIT",

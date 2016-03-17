@@ -1,5 +1,4 @@
 {BufferedProcess, CompositeDisposable} = require 'atom'
-{XRegExp}             = require 'xregexp'
 {Process}             = require 'process'
 
 @config =
@@ -62,26 +61,29 @@ runPrettyPrint = (editor, selection) =>
     runPrettyPrint(editor, selection) for selection in selections
 
 matchError = (fp, match) ->
-  line = Number(match.line) - 1
-  col  = Number(match.col) - 1
-  type: if match.warning then 'Warning' else 'Error',
-  text: match.message,
+  line = Number(match[2]) - 1
+  col  = Number(match[3]) - 1
+  type: if match[1] == 'Warning' then 'Warning' else 'Error',
+  text: match[4],
   filePath: fp,
   range: [[line, col], [line, col + 1]]
 
-regex = '^.+?: \\[((?<error>Error)|(?<warning>Warning))\\] ' +
-      'line (?<line>\\d+), column (?<col>\\d+): ' +
-      '(?<message>.+)'
+regex = '^.+?: \\[(Error|Warning)\\] ' +
+      'line (\\d+), column (\\d+): ' +
+      '(.+)'
 
 infoErrors = (fp, info) ->
   if (!info)
     return []
   errors = []
-  regex = XRegExp regex
+  matcher = RegExp regex
   for msg in info.split('\n')
-    XRegExp.forEach msg, regex, (match, i) ->
+    match = matcher.exec(msg)
+
+    if (match?)
       e = matchError(fp, match)
       errors.push(e)
+
   return errors
 
 @provideLinter = =>

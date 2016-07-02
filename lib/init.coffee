@@ -63,13 +63,15 @@ runPrettyPrint = (editor, selection) =>
 matchError = (fp, match) ->
   line = Number(match[2]) - 1
   col  = Number(match[3]) - 1
+  endLine = if match[5] != undefined then Number(match[5]) - 1 else line
+  endCol = if match[6] != undefined then Number(match[6]) - 1 else col + 1
   type: if match[1] == 'Warning' then 'Warning' else 'Error',
-  text: match[4],
+  text: match[7],
   filePath: fp,
-  range: [[line, col], [line, col + 1]]
+  range: [[line, col], [endLine, endCol]]
 
 regex = '^.+?: \\[(Error|Warning)\\] ' +
-      'line (\\d+), column (\\d+): ' +
+      'line (\\d+), column (\\d+)( - line (\\d+), column (\\d+))?: ' +
       '(.+)'
 
 infoErrors = (fp, info) ->

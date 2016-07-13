@@ -22,6 +22,7 @@
 
   atom.commands.add 'atom-workspace', 'linter-glualint:prettyprint': => @prettyprint()
   atom.commands.add 'atom-workspace', 'linter-glualint:lintproject': => @lintproject()
+  atom.commands.add 'atom-workspace', 'linter-glualint:findglobalsproject': => @findglobalsproject()
 
 @deactivate = =>
   @subscriptions.dispose()
@@ -62,23 +63,24 @@ runPrettyPrint = (editor, selection) =>
     runPrettyPrint(editor, selection) for selection in selections
 
 formatLintProjectString = (str) =>
-    pattern = /(.+?):\s(\[((Error)|(Warning))\]\s.*)/
+    pattern = /(.+?):\s(\[((Error)|(Warning))\]\s.*)/g
 
     dict = {}
-    console.log("FORMAT LINT ")
-    str.replace(pattern, (_, fileName, message) =>
-      console.log("REPLACE!: " + fileName + ' |||||| ' + message + '*****')
-      msgs = if dict[fileName] then dict[fileName] else []
-      msgs.push(message)
-      dict[fileName] = msgs
-    )
+
+    while match = pattern.exec(str)
+        fileName = match[1]
+        msg = match[2]
+        dict[fileName] = if dict[fileName] then dict[fileName] else []
+        dict[fileName].push(msg)
 
     res = []
 
     for fileName, messages of dict
       res.push(fileName + ":")
-      msgs = "    " + msg for msg in messages
-      res = res.concat msgs
+
+      for msg in messages
+        res.push("    " + msg)
+
       res.push ""
 
     return res.join('\n')
@@ -87,7 +89,6 @@ runLintProject = (editor) =>
     projects = atom.project.getPaths()
     result = []
 
-    console.log(projects.join(' '))
     pane = atom.workspace.getActivePane()
 
     process = new BufferedProcess
@@ -117,6 +118,41 @@ runLintProject = (editor) =>
     editor = atom.workspace.getActivePaneItem()
 
     runLintProject(editor)
+
+
+runFindGlobalsProject = (editor) =>
+    projects = atom.project.getPaths()
+    result = []
+
+    pane = atom.workspace.getActivePane()
+
+    process = new BufferedProcess
+        command: @executablePath
+        options: {stdio: [null, null, null]}
+        args: ["--analyse-globals"].concat(projects)
+        stderr: (data) ->
+          result.push data
+        stdout: (data) ->
+          result.push data
+        exit: (code) ->
+          info = result.join('')
+          atom.workspace.open("")
+          .then (edt) ->
+            info = if info == "" then "No globals found" else info
+            edt.setText("Project globals: \n\n" + info)
+
+
+    process.onWillThrowError ({error,handle}) ->
+        atom.notifications.addError "Failed to run #{@executablePath}",
+          detail: "#{error.message}"
+          dismissable: true
+        handle()
+
+
+@findglobalsproject = =>
+    editor = atom.workspace.getActivePaneItem()
+
+    runFindGlobalsProject(editor)
 
 matchError = (fp, match) ->
   line = Number(match[2]) - 1

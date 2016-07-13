@@ -11,6 +11,10 @@
         {
           'label': 'Lint project'
           'command': 'linter-glualint:lintproject'
+        },
+        {
+          'label': 'Find globals in project'
+          'command': 'linter-glualint:findglobalsproject'
         }
       ]
     ]

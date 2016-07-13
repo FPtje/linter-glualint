@@ -1,11 +1,11 @@
-{BufferedProcess, CompositeDisposable} = require 'atom'
+{BufferedProcess, CompositeDisposable, TextBuffer, TextEditor} = require 'atom'
 {Process}             = require 'process'
 
 @config =
   executable:
     type: 'string'
     default: 'glualint'
-    description: "The executable path to glualint. Leave as 'glualint' if glualint is on your system's PATH."
+    description: "The path to the glualint executable. Leave as 'glualint' if glualint is on your system's PATH."
 
   lintOnSave:
     type: 'boolean'
@@ -21,6 +21,7 @@
     @lintOnSave = save
 
   atom.commands.add 'atom-workspace', 'linter-glualint:prettyprint': => @prettyprint()
+  atom.commands.add 'atom-workspace', 'linter-glualint:lintproject': => @lintproject()
 
 @deactivate = =>
   @subscriptions.dispose()
@@ -59,6 +60,63 @@ runPrettyPrint = (editor, selection) =>
     selections = editor.getSelections()
 
     runPrettyPrint(editor, selection) for selection in selections
+
+formatLintProjectString = (str) =>
+    pattern = /(.+?):\s(\[((Error)|(Warning))\]\s.*)/
+
+    dict = {}
+    console.log("FORMAT LINT ")
+    str.replace(pattern, (_, fileName, message) =>
+      console.log("REPLACE!: " + fileName + ' |||||| ' + message + '*****')
+      msgs = if dict[fileName] then dict[fileName] else []
+      msgs.push(message)
+      dict[fileName] = msgs
+    )
+
+    res = []
+
+    for fileName, messages of dict
+      res.push(fileName + ":")
+      msgs = "    " + msg for msg in messages
+      res = res.concat msgs
+      res.push ""
+
+    return res.join('\n')
+
+runLintProject = (editor) =>
+    projects = atom.project.getPaths()
+    result = []
+
+    console.log(projects.join(' '))
+    pane = atom.workspace.getActivePane()
+
+    process = new BufferedProcess
+        command: @executablePath
+        options: {stdio: [null, null, null]}
+        args: projects
+        stderr: (data) ->
+          result.push data
+        stdout: (data) ->
+          result.push data
+        exit: (code) ->
+          info = result.join('')
+          atom.workspace.open("")
+          .then (edt) ->
+            info = if info == "" then "No lint messages" else formatLintProjectString(info)
+            edt.setText("Project lint messages: \n\n" + info)
+
+
+    process.onWillThrowError ({error,handle}) ->
+        atom.notifications.addError "Failed to run #{@executablePath}",
+          detail: "#{error.message}"
+          dismissable: true
+        handle()
+
+
+@lintproject = =>
+    editor = atom.workspace.getActivePaneItem()
+
+    runLintProject(editor)
 
 matchError = (fp, match) ->
   line = Number(match[2]) - 1

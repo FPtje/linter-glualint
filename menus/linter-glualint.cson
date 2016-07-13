@@ -7,6 +7,10 @@
         {
           'label': 'Pretty print'
           'command': 'linter-glualint:prettyprint'
+        },
+        {
+          'label': 'Lint project'
+          'command': 'linter-glualint:lintproject'
         }
       ]
     ]

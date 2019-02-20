@@ -1,4 +1,4 @@
-linter-glua
+linter-glualint
 ===========
 ## Requirements
 

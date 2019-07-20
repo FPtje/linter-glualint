@@ -1,5 +1,6 @@
 {BufferedProcess, CompositeDisposable, TextBuffer, TextEditor} = require 'atom'
 {Process}             = require 'process'
+path = require 'path'
 
 @config =
   executable:
@@ -193,11 +194,16 @@ infoErrors = (fp, info) ->
     lint: (textEditor) =>
       return new Promise (resolve, reject) =>
         filePath = textEditor.getPath()
+        filePathdir = path.dirname(filePath)
         message  = []
+        bufferContents = textEditor.buffer.getText()
 
         process = new BufferedProcess
             command: @executablePath
-            args: [filePath]
+            options:
+              cwd: filePathdir
+              stdio: ['pipe', null, null]
+            args: ["--stdin"]
             stderr: (data) ->
               message.push data
             stdout: (data) ->
@@ -213,3 +219,5 @@ infoErrors = (fp, info) ->
               dismissable: true
             handle()
             resolve []
+
+        process.process.stdin.end(bufferContents)

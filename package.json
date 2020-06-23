@@ -3,7 +3,7 @@
   "main": "./lib/init",
   "version": "0.9.0",
   "description": "Lua linter for Garry's mod Lua using glualint.",
-  "repository": "https://github.com/FPtje/linter-glualint",
+  "repository": "git@github.com:FPtje/linter-glualint.git",
   "license": "MIT",
   "engines": {
     "atom": ">=0.50.0"

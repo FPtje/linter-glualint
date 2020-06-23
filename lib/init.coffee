@@ -59,6 +59,8 @@ runPrettyPrint = (editor, selection) =>
 
 @prettyprint = =>
     editor = atom.workspace.getActivePaneItem()
+    if editor == undefined
+      return
     selections = editor.getSelections()
 
     runPrettyPrint(editor, selection) for selection in selections
